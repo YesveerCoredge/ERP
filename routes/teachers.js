@@ -11,6 +11,7 @@ const {
   addTeacher,
   getClassAttendance,
   updateTeacher,
+  updateTeacherDetails,
 } = require("../controllers/teacherController");
 const upload = require("../middleware/uploadMiddleware");
 
@@ -51,5 +52,6 @@ router.get("/get-timetable/:email", authMiddleware, getTimetable);
 
 // Add timetable for a student
 router.post("/add-student-timetable", authMiddleware, addStudentTimetable);
+router.put("/:id", authMiddleware, updateTeacherDetails)
 
 module.exports = router;

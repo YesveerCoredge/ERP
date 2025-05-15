@@ -4,6 +4,7 @@ const {
   getStudentDashboard,
   getAccountantDashboard,
   getAdminDashboard,
+  getEventsDomainRole,
 } = require("../controllers/dashboardController");
 
 const authMiddleware = require("../middleware/authMiddleware");
@@ -21,5 +22,10 @@ router.get("/accountant", authMiddleware, getAccountantDashboard);
 
 // Admin Dashboard
 router.get("/admin", authMiddleware, getAdminDashboard);
+router.get(
+  "/events-domain-role",
+  authMiddleware,
+  getEventsDomainRole
+); // Get events based on domain and role
 
 module.exports = router;

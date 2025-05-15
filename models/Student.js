@@ -7,18 +7,35 @@ const StudentSchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
-    // rollNo: {
-    //   type: String,
-    //   unique: true,
-    //   index: true,
-    // },
+    rollno: {
+      type: String,
+      // unique: true,
+    },
     name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+    email: { type: String, required: true },
     password: { type: String, required: true },
     domainName: { type: String },
+    username: { type: String, required: true, unique: true },
+    previous_school: {
+      type: String,
+    },
     gender: {
       type: String,
       enum: ["Male", "Female", "Other"],
+    },
+    bloodGroup: {
+      type: String,
+      enum: [
+        "A+",
+        "A-",
+        "B+",
+        "B-",
+        "AB+",
+        "AB-",
+        "O+",
+        "O-",
+        "Unknown",
+      ],
     },
     dateOfBirth: {
       type: Date,
@@ -43,6 +60,14 @@ const StudentSchema = new mongoose.Schema(
       name: String,
       relation: String,
       phone: String,
+      email: String,
+      address: {
+        street: String,
+        city: String,
+        state: String,
+        postalCode: String,
+        country: String,
+      },
     },
     admissionDate: {
       type: Date,

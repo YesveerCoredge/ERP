@@ -18,20 +18,37 @@ const TeacherSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
-      unique: true,
       lowercase: true,
     },
     password: {
       type: String,
       required: true,
     },
+    bloodGroup: {
+      type: String,
+      enum: [
+        "A+",
+        "A-",
+        "B+",
+        "B-",
+        "AB+",
+        "AB-",
+        "O+",
+        "O-",
+        "Unknown",
+      ],
+    },
+    username: {
+      type: String,
+      required: true,
+    },
     gender: {
       type: String,
-      enum: ["male", "female", "other"],
+      enum: ["Male", "Female", "Other"],
     },
     phone: {
       type: String,
-      default: "7651853228",
+      // default: "7651853228",
     },
     dateOfBirth: {
       type: Date,
@@ -51,11 +68,16 @@ const TeacherSchema = new mongoose.Schema(
       default: "Assistant Professor",
     },
     qualifications: {
-      type: String,
+      type: [],
+    },
+    emergencyContact: {
+      phone: { type: String },
+      name: {type: String},
+      relation: {type: String}
     },
     experienceYears: {
       type: Number,
-      default: 0,
+      // default: 0,
     },
     domainName: {
       type: String, // e.g., school/college name for multitenancy

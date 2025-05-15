@@ -4,6 +4,7 @@ const ClassSchema = new mongoose.Schema({
   name: { type: String, required: true },
   section: { type: String, required: true },
   description: { type: String },
+  domainName: { type: String, required: true },
   academicYear: {
     type: String,
     required: true,

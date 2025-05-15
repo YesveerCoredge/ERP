@@ -3,7 +3,7 @@ const Event = require("../models/Event");
 // ✅ Create a new event
 exports.createEvent = async (req, res) => {
   try {
-    const { title, description, location, startDate, endDate, ...rest } =
+    const { title, description, domainName, location, startDate, endDate, ...rest } =
       req.body;
     const createdBy = req.user.id; // Get logged-in user ID from token
 
@@ -17,6 +17,7 @@ exports.createEvent = async (req, res) => {
       title,
       description,
       location,
+      domainName,
       createdBy,
       startDate,
       endDate,

@@ -6,6 +6,7 @@ const DomainSchema = new mongoose.Schema({
   maxTeachers: { type: Number, required: true },
   maxStudents: { type: Number, required: true },
   maxAccountants: { type: Number, required: true },
+  username: { type: String, required: true, unique: true },
   createdAt: { type: Date, default: Date.now }
 });
 

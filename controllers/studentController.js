@@ -1,6 +1,7 @@
 const Student = require("../models/Student");
 const Timetable = require("../models/Timetable");
 const User = require("../models/User");
+
 exports.createStudent = async (req, res) => {
   try {
     const {
@@ -80,6 +81,9 @@ exports.createStudent = async (req, res) => {
     });
   }
 };
+
+
+
 // Get all students
 exports.getAllStudents = async (req, res) => {
   try {
@@ -155,5 +159,84 @@ exports.getStudentTimetable = async (req, res) => {
     res.json(timetable);
   } catch (error) {
     res.status(500).json({ error: "Server Error" });
+  }
+};
+
+exports.updateStudentDetails = async (req, res) => {
+  try {
+    const {
+      username,
+      name,
+      rollno,
+      email,
+      previous_school,
+      gender,
+      bloodGroup,
+      dateOfBirth,
+      contact,
+      address,
+      guardian,
+      admissionDate,
+      isActive,
+      status,
+    } = req.body;
+
+    const updatedFields = {
+      username,
+      name,
+      rollno,
+      email,
+      previous_school,
+      gender,
+      bloodGroup,
+      dateOfBirth,
+      contact,
+      address,
+      admissionDate,
+      isActive,
+      status,
+    };
+
+    // Remove undefined fields to avoid overwriting with null/undefined
+    Object.keys(updatedFields).forEach(
+      (key) => updatedFields[key] === undefined && delete updatedFields[key]
+    );
+
+    // Handle nested guardian object explicitly
+    if (guardian) {
+      Object.keys(guardian).forEach(
+        (key) => guardian[key] === undefined && delete guardian[key]
+      );
+      updatedFields.guardian = guardian;
+    }
+
+    // Check if email already exists
+    if (email) {
+      const existingEmail = await Student.findOne({ email, _id: { $ne: req.params.id } });
+      if (existingEmail) {
+        return res.status(400).json({ error: "Email already exists" });
+      }
+    }
+
+    // Check if username already exists
+    if (username) {
+      const existingUsername = await Student.findOne({ username, _id: { $ne: req.params.id } });
+      if (existingUsername) {
+        return res.status(400).json({ error: "Username already exists" });
+      }
+    }
+
+    const student = await Student.findByIdAndUpdate(
+      req.params.id,
+      updatedFields,
+      { new: true }
+    );
+
+    if (!student) return res.status(404).json({ error: "Student not found" });
+
+    res.json({ message: "Student details updated successfully", student });
+  } catch (error) {
+    console.error("Update Student Details Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };

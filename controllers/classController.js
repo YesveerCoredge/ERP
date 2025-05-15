@@ -7,21 +7,29 @@ const Teacher = require("../models/Teacher");
 // ✅ Create a new class
 exports.createClass = async (req, res) => {
   try {
-    const { name, section, description, classTeacher } = req.body;
+    const { name, domainName, section, description, classTeacher, academicYear } = req.body;
     const createdBy = req.user.id; // Get logged-in user ID from token
 
-    if (!name || !section || !classTeacher) {
+    if (!name || !section || !domainName || !classTeacher || classTeacher.trim() == "") {
       return res
         .status(400)
-        .json({ error: "Class name and section are required" });
+        .json({ error: "Class Name, Section, Domain, and Class Teacher are required" });
+    }
+
+    // Validate classTeacher ID
+    const teacherExists = await Teacher.findById(classTeacher);
+    if (!teacherExists) {
+      return res.status(404).json({ error: "Class Teacher not found" });
     }
 
     const newClass = new Class({
       name,
+      domainName,
       section,
       description,
       classTeacher,
       createdBy,
+      academicYear,
     });
     await newClass.save();
 

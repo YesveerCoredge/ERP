@@ -6,6 +6,7 @@ const Exam = require("../models/Exam");
 const Timetable = require("../models/Timetable");
 const Transaction = require("../models/Transaction");
 const Class = require("../models/Class");
+const Event = require("../models/Event");
 
 // 🎯 Teacher Dashboard
 exports.getTeacherDashboard = async (req, res) => {
@@ -88,90 +89,31 @@ exports.getAccountantDashboard = async (req, res) => {
 // 🎯 Admin Dashboard
 exports.getAdminDashboard = async (req, res) => {
   try {
+    // Assuming the domain is passed as a query parameter in the GET request
+    const domainName = req.query.domain;
+    if (!domainName) {
+      return res.status(400).json({ error: "Domain is required" });
+    }
+
     const [
       totalUsers,
       totalTeachers,
       totalStudents,
-      totalTransactions,
-      totalClass,
-      transactions,
-      activeStudents,
-      inactiveStudents,
-      activeTeachers,
-      inactiveTeachers,
-      recentTransactions,
-      students,
-      classes,
+      totalClasses,
     ] = await Promise.all([
-      User.countDocuments(),
-      Teacher.countDocuments(),
-      Student.countDocuments(),
-      Transaction.countDocuments(),
-      Class.countDocuments(),
-      Transaction.find(),
-      Student.countDocuments({ isActive: true }),
-      Student.countDocuments({ isActive: false }),
-      Teacher.countDocuments({ isActive: true }),
-      Teacher.countDocuments({ isActive: false }),
-      Transaction.find().sort({ createdAt: -1 }).limit(5),
-      Student.find({}, 'email name gender classId totalPaid'),
-      Class.find({}, 'name'),
+      User.countDocuments({ domainName }),
+      Teacher.countDocuments({ domainName }),
+      Student.countDocuments({ domainName }),
+      Class.countDocuments({ domainName }),
     ]);
-
-    const totalRevenue = transactions.reduce((sum, txn) => sum + txn.amount, 0);
-
-    // ✅ Monthly Revenue Analytics - Last 6 months
-    const monthlyRevenue = {};
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
-    for (let i = 0; i < 6; i++) {
-      const month = new Date(sixMonthsAgo.getFullYear(), sixMonthsAgo.getMonth() + i, 1);
-      const monthKey = month.toLocaleString('default', { month: 'short', year: 'numeric' });
-
-      const monthSum = transactions
-        .filter(txn => new Date(txn.createdAt).getMonth() === month.getMonth())
-        .reduce((sum, txn) => sum + txn.amount, 0);
-
-      monthlyRevenue[monthKey] = monthSum;
-    }
-
-    // ✅ Top 5 Students by Payment (Assumes you track totalPaid or similar)
-    const topPayingStudents = students
-      .filter(s => s.totalPaid)
-      .sort((a, b) => b.totalPaid - a.totalPaid)
-      .slice(0, 5);
-
-    // ✅ Class-wise Student Count
-    const studentsPerClass = classes.map(cls => {
-      const count = students.filter(s => s.classId?.toString() === cls._id.toString()).length;
-      return { className: cls.name, count };
-    });
-
-    // ✅ Gender Ratio
-    const genderStats = {
-      Male: students.filter(s => s.gender === "Male").length,
-      Female: students.filter(s => s.gender === "Female").length,
-      // Other: students.filter(s => s.gender === "Other").length,
-    };
 
     res.json({
       totals: {
         totalUsers,
         totalTeachers,
         totalStudents,
-        totalTransactions,
-        totalRevenue,
-        totalClass,
-        activeStudents,
-        inactiveStudents,
-        activeTeachers,
-        inactiveTeachers,
+        totalClasses,
       },
-      recentTransactions,
-      monthlyRevenue,
-      topPayingStudents,
-      studentsPerClass,
-      genderStats,
     });
 
   } catch (error) {
@@ -180,3 +122,20 @@ exports.getAdminDashboard = async (req, res) => {
   }
 };
 
+
+exports.getEventsDomainRole = async (req, res) => {
+  try {
+    const { domainName, role } = req.query;
+
+    if (!domainName || !role) {
+      return res.status(400).json({ error: "Domain and role are required" });
+    }
+
+    const events = await Event.find({ domainName, visibility: { $in: [role, "All"] } });
+
+    res.json({ events });
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    res.status(500).json({ error: "Server Error" });
+  }
+};

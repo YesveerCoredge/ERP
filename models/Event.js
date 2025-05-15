@@ -20,6 +20,10 @@ const eventSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
+  domainName: {
+    type: String,
+    required: true,
+  },
   description: {
     type: String,
     required: true,
@@ -44,7 +48,8 @@ const eventSchema = new mongoose.Schema({
   visibility: {
     type: [String], // This means it's an array of strings
     enum: ['Admin', 'Teacher', 'Student', 'Accountant'],
-    default: ['Student', 'Teacher', 'Admin', 'Accountant']
+    default: ['Student', 'Teacher', 'Admin', 'Accountant'],
+    required: true,
   },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   // attachments: [{

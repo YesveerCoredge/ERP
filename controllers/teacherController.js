@@ -493,3 +493,75 @@ exports.addStudentTimetable = async (req, res) => {
     res.status(500).json({ error: "Server Error" });
   }
 };
+
+// Update teacher details (PUT)
+exports.updateTeacherDetails = async (req, res) => {
+  try {
+    const {
+      name,
+      username,
+      gender,
+      dateOfBirth,
+      bloodGroup,
+      phone,
+      email,
+      address,
+      emergencyContact,
+      department,
+      joiningDate,
+      qualifications,
+      experienceYears,
+      subjects,
+    } = req.body;
+
+    const teacherId = req.params.id;
+
+    // Check if email already exists for another teacher
+    if (email) {
+      const existingEmail = await Teacher.findOne({ email, _id: { $ne: teacherId } });
+      if (existingEmail) {
+        return res.status(400).json({ error: "Email already exists" });
+      }
+    }
+
+    // Check if username already exists for another teacher
+    if (username) {
+      const existingUsername = await Teacher.findOne({ username, _id: { $ne: teacherId } });
+      if (existingUsername) {
+        return res.status(400).json({ error: "Username already exists" });
+      }
+    }
+
+    // Build update object
+    const updateFields = {};
+    if (name !== undefined) updateFields.name = name;
+    if (username !== undefined) updateFields.username = username;
+    if (gender !== undefined) updateFields.gender = gender;
+    if (dateOfBirth !== undefined) updateFields.dateOfBirth = dateOfBirth;
+    if (bloodGroup !== undefined) updateFields.bloodGroup = bloodGroup;
+    if (phone !== undefined) updateFields.phone = phone;
+    if (email !== undefined) updateFields.email = email;
+    if (address !== undefined) updateFields.address = address;
+    if (emergencyContact !== undefined) updateFields.emergencyContact = emergencyContact;
+    if (department !== undefined) updateFields.designation = department;
+    if (joiningDate !== undefined) updateFields.joiningDate = joiningDate;
+    if (qualifications !== undefined) updateFields.qualifications = qualifications;
+    if (experienceYears !== undefined) updateFields.experienceYears = experienceYears;
+    if (subjects !== undefined) updateFields.subjects = subjects;
+
+    const updatedTeacher = await Teacher.findByIdAndUpdate(
+      teacherId,
+      { $set: updateFields },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedTeacher) {
+      return res.status(404).json({ error: "Teacher not found" });
+    }
+
+    res.json({ message: "Teacher details updated successfully", teacher: updatedTeacher });
+  } catch (error) {
+    console.error("Update Teacher Details Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
