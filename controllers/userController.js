@@ -1,4 +1,8 @@
 const User = require("../models/User");
+const Accountant = require("../models/Accountant");
+const Student = require("../models/Student");
+const Teacher = require("../models/Teacher");
+const Admin = require("../models/Admin");
 
 // Get a single user by ID
 exports.getUserById = async (req, res) => {
@@ -27,12 +31,25 @@ exports.updateUser = async (req, res) => {
   }
 };
 
-// Delete user
+// Delete user and related records from Accountant, Student, Teacher, and Admin tables
+
 exports.deleteUser = async (req, res) => {
   try {
-    const deletedUser = await User.findByIdAndDelete(req.params.id);
+    const userId = req.params.id;
+
+    // Delete user from User collection
+    const deletedUser = await User.findByIdAndDelete(userId);
     if (!deletedUser) return res.status(404).json({ error: "User not found" });
-    res.json({ message: "User deleted successfully" });
+
+    // Delete user from other collections if exists
+    await Promise.all([
+      Accountant.findOneAndDelete({ accountantId: userId }),
+      Student.findOneAndDelete({ studentId: userId }),
+      Teacher.findOneAndDelete({ teacherId: userId }),
+      Admin.findOneAndDelete({ adminId: userId }),
+    ]);
+
+    res.json({ message: "User and related records deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: "Server Error" });
   }

@@ -52,6 +52,6 @@ router.get("/get-timetable/:email", authMiddleware, getTimetable);
 
 // Add timetable for a student
 router.post("/add-student-timetable", authMiddleware, addStudentTimetable);
-router.put("/:id", authMiddleware, updateTeacherDetails)
+router.put("/:teacherId", authMiddleware, updateTeacherDetails)
 
 module.exports = router;

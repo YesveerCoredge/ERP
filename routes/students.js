@@ -22,7 +22,7 @@ router.get("/all", authMiddleware, getAllStudents);
 
 // Get a student by ID
 router.get("/:id", authMiddleware, getStudentById);
-router.put("/:id", authMiddleware, updateStudentDetails);
+router.put("/:studentId", authMiddleware, updateStudentDetails);
 
 // // Update student details
 // router.put(

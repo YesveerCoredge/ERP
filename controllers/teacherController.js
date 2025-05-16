@@ -514,11 +514,16 @@ exports.updateTeacherDetails = async (req, res) => {
       subjects,
     } = req.body;
 
-    const teacherId = req.params.id;
+    // Accept teacherId from params, body, or query for flexibility
+    const teacherId = req.params.teacherId || req.body.teacherId || req.query.teacherId;
+
+    if (!teacherId) {
+      return res.status(400).json({ error: "teacherId is required in params, body, or query" });
+    }
 
     // Check if email already exists for another teacher
     if (email) {
-      const existingEmail = await Teacher.findOne({ email, _id: { $ne: teacherId } });
+      const existingEmail = await Teacher.findOne({ email, teacherId: { $ne: teacherId } });
       if (existingEmail) {
         return res.status(400).json({ error: "Email already exists" });
       }
@@ -526,7 +531,7 @@ exports.updateTeacherDetails = async (req, res) => {
 
     // Check if username already exists for another teacher
     if (username) {
-      const existingUsername = await Teacher.findOne({ username, _id: { $ne: teacherId } });
+      const existingUsername = await Teacher.findOne({ username, teacherId: { $ne: teacherId } });
       if (existingUsername) {
         return res.status(400).json({ error: "Username already exists" });
       }
@@ -549,8 +554,8 @@ exports.updateTeacherDetails = async (req, res) => {
     if (experienceYears !== undefined) updateFields.experienceYears = experienceYears;
     if (subjects !== undefined) updateFields.subjects = subjects;
 
-    const updatedTeacher = await Teacher.findByIdAndUpdate(
-      teacherId,
+    const updatedTeacher = await Teacher.findOneAndUpdate(
+      { teacherId },
       { $set: updateFields },
       { new: true, runValidators: true }
     );

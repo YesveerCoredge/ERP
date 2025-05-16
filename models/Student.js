@@ -9,7 +9,7 @@ const StudentSchema = new mongoose.Schema(
     },
     rollno: {
       type: String,
-      // unique: true,
+      unique: true,
     },
     name: { type: String, required: true },
     email: { type: String, required: true },

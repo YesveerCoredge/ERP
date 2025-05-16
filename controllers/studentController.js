@@ -226,8 +226,11 @@ exports.updateStudentDetails = async (req, res) => {
       }
     }
 
-    const student = await Student.findByIdAndUpdate(
-      req.params.id,
+    // Try to get studentId from params or fallback to id
+    const studentId = req.params.studentId || req.params.id;
+
+    const student = await Student.findOneAndUpdate(
+      { studentId: studentId },
       updatedFields,
       { new: true }
     );
